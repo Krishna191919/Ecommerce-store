@@ -1,21 +1,22 @@
 import React from "react";
 
-const ProductCard = () => {
+const ProductCard = (props) => {
   return (
-    <>
-      <div className="flex flex-col gap-4 px-3 border-2 border-slate-600 w-72">
+    <div className="flex flex-col gap-4 p-4 border-2 border-gray-300 rounded-lg shadow-lg w-80 hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+      <div className="h-56 w-full overflow-hidden rounded-lg flex items-center justify-center bg-gray-100">
         <img
-          src="https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
-          alt=""
+          src={props.img}
+          alt={props.title}
+          className="max-h-full max-w-full object-contain transform hover:scale-105 transition-transform duration-300 ease-in-out"
         />
-        <h2 className="text-2xl">Clothing bag</h2>
-        <p>
-          Your perfect pack for everyday use and walks in the forest. Stash your
-          laptop (up to 15 inches) in the padded sleeve, your everyday
-        </p>
-        <h3 className="text-2xl">$109.95</h3>
       </div>
-    </>
+      <h2 className="text-xl font-semibold text-gray-800 line-clamp-1">{props.title}</h2>
+      <p className="text-gray-600 text-sm line-clamp-2">{props.description}</p>
+      <h3 className="text-lg font-bold text-gray-900">${props.price}</h3>
+      <button className="px-4 py-2 mt-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors duration-300 ease-in-out">
+        Add to Cart
+      </button>
+    </div>
   );
 };
 
