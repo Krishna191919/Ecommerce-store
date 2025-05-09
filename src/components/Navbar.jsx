@@ -31,18 +31,27 @@ const Navbar = () => {
             className="w-20 h-20"
           />
         </div>
-        <ul className="flex justify-between list-none w-96">
+        <ul className="flex justify-between list-none w-96 ">
           <li>
-            <a href="">Home</a>
+            <a href="#" className="relative inline-block text-black group">
+              Home
+              <span class="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
+            </a>
           </li>
           <li>
-            <a href="">About</a>
+            <a href="#" className="relative inline-block text-black group">About
+              <span class="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
+            </a>
           </li>
           <li>
-            <a href="">Contact</a>
+            <a href="#" className="relative inline-block text-black group">Contact
+              <span class="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
+            </a>
           </li>
         </ul>
-        <div>Cart</div>
+        <div className="relative inline-block text-black group">Cart
+          <span class="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
+        </div>
       </header>
     </>
   );
@@ -50,16 +59,16 @@ const Navbar = () => {
 
 const Hero = () => {
   return (
-    <section className='flex flex-col gap-4 px-2 py-2 border-2 border-red-500'>
-      <div className='flex gap-3'>
+    <section className="flex flex-col gap-4 px-2 py-2 border-2 border-red-300">
+      <div className="flex gap-3">
         <input
-          type='text'
-          className='w-80 px-4 py-2 pr-10 text-sm text-gray-700 bg-white border border-gray-800 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
-          placeholder='Search...'
+          type="text"
+          className="w-80 px-4 py-2 pr-10 text-sm text-gray-700 bg-white border border-gray-800 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          placeholder="Search..."
         />
         Search
       </div>
-      <div className='flex flex-wrap justify-center gap-4 product-items'>
+      <div className="flex flex-wrap justify-center gap-4 product-items">
         {productData.map((product, index) => (
           <ProductCard
             key={product.id || index} // Ensure a unique key
