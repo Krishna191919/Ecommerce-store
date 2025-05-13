@@ -1,5 +1,6 @@
 import React from "react";
 import { FaCartPlus, FaHome, FaInfoCircle, FaPhoneAlt, FaHeadset } from "react-icons/fa";
+import { LOGO_URL } from "../utils/constants";
 
 export const productData = [
   {
@@ -27,7 +28,7 @@ const Navbar = () => {
         {/* Logo */}
         <div>
           <img
-            src="src/assets/store.png"
+            src={LOGO_URL}
             alt="Store Logo"
             className="w-12 h-12 sm:w-16 sm:h-16 hover:scale-110 transition-transform duration-300"
           />

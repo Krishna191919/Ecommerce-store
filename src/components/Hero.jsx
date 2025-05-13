@@ -1,44 +1,7 @@
-import React from "react";
+import {useState} from "react";
 import { FaCartPlus } from "react-icons/fa";
 import { productData } from "../utils/productData";
 
-// const Navbar = () => {
-//   return (
-//     <header className="flex flex-wrap items-center justify-between px-3 py-2 text-lg sm:text-2xl ">
-//       <div>
-//         <img
-//           src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/store-logo-design-template-3ac57f780d1cae2a6d3a049f82c62437_screen.jpg?ts=1646205211"
-//           alt="Store Logo"
-//           className="w-16 h-16 sm:w-20 sm:h-20 hover:scale-110 transition-transform duration-300"
-//         />
-//       </div>
-//       <ul className="flex flex-wrap justify-between list-none w-full sm:w-96 gap-2 sm:gap-0">
-//         <li>
-//           <a href="#" className="relative inline-block text-black group">
-//             Home
-//             <span className="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-//           </a>
-//         </li>
-//         <li>
-//           <a href="#" className="relative inline-block text-black group">
-//             About
-//             <span className="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-//           </a>
-//         </li>
-//         <li>
-//           <a href="#" className="relative inline-block text-black group">
-//             Contact
-//             <span className="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-//           </a>
-//         </li>
-//       </ul>
-//       <div className="relative inline-block text-black group hover:text-blue-600 transition-colors duration-300">
-//         Cart
-//         <span className="absolute left-0 bottom-0 h-1 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-//       </div>
-//     </header>
-//   );
-// };
 
 const ProductCard = ({ price, image, title, description, category }) => {
   return (
@@ -68,11 +31,28 @@ const ProductCard = ({ price, image, title, description, category }) => {
   );
 };
 
+
+// Hero component to display the top-rated products
+// This component uses the ProductCard component to display each product
+// It also includes a button to filter and display only the top-rated products
+// The top-rated products are filtered based on their rating
+// The component uses the productData array to get the product information
 const Hero = () => {
+  const [topRatedProducts, setTopRatedProducts] = useState(productData);
+  const topRatedProductsdata = () => {
+    setTopRatedProducts(productData.filter((product) => product.rating.rate >= 4));
+    console.log(topRatedProducts);
+  };
   return (
     <section className="flex flex-col gap-4 px-2 py-2 bg-[#98CAE3]">
+      <div className="flex items-center justify-between px-3 py-2 text-lg sm:text-2xl">
+        <button className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300  cursor-pointer" onClick={topRatedProductsdata}>
+          Top Rated Product
+        </button>
+      </div>
       <div className="flex flex-wrap justify-center gap-4 product-items">
-        {productData.map((product, index) => (
+        
+        {topRatedProducts.map((product, index) => (
           <ProductCard
             key={product.id || index}
             image={product.image}

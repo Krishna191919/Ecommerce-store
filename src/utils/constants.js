@@ -1,0 +1,1 @@
+export const LOGO_URL = "src/assets/store.png"
