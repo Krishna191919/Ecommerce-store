@@ -1,1 +1,3 @@
-export const LOGO_URL = "src/assets/store.png"
+import storeImg from './assets/store.png';
+
+export const LOGO_URL = storeImg;

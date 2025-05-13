@@ -1,6 +1,6 @@
 import React from "react";
 import { FaCartPlus, FaHome, FaInfoCircle, FaPhoneAlt, FaHeadset } from "react-icons/fa";
-import { LOGO_URL } from "../utils/constants";
+import { LOGO_URL } from '../utils/constants';
 
 export const productData = [
   {
