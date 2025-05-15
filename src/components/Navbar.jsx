@@ -1,6 +1,12 @@
-import React from "react";
-import { FaCartPlus, FaHome, FaInfoCircle, FaPhoneAlt, FaHeadset } from "react-icons/fa";
-import { LOGO_URL } from '../utils/constants';
+import React, { useState } from "react";
+import {
+  FaCartPlus,
+  FaHome,
+  FaInfoCircle,
+  FaPhoneAlt,
+  FaHeadset,
+} from "react-icons/fa";
+import { LOGO_URL } from "../utils/constants";
 
 export const productData = [
   {
@@ -10,6 +16,7 @@ export const productData = [
     description: "This is product 1",
     category: "Category 1",
     price: 100,
+    rating: { rate: 4.5 },
   },
   {
     id: 2,
@@ -18,10 +25,15 @@ export const productData = [
     description: "This is product 2",
     category: "Category 2",
     price: 200,
+    rating: { rate: 3.8 },
   },
 ];
 
-const Navbar = () => {
+const Navbar = ({ setTopRatedProducts }) => {
+  const resetProducts = () => {
+    setTopRatedProducts(productData); // Reset to show all products
+  };
+
   return (
     <>
       <header className="flex items-center justify-between px-3 text-sm sm:text-base py-1 bg-[#6BB7C7] shadow-md">
@@ -65,6 +77,7 @@ const Navbar = () => {
             <a
               href="#"
               className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
+              onClick={resetProducts} // Reset products on click
             >
               <FaHome className="text-base" />
               Home

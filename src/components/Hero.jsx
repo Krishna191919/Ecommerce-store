@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
+import Navbar from "./Navbar";
+import ShimmerProductCard from "./shimmerUi";
 
 const ProductCard = ({ price, image, title, description, category }) => {
   return (
@@ -34,56 +36,61 @@ const ProductCard = ({ price, image, title, description, category }) => {
   );
 };
 
-// Hero component to display the top-rated products
-// This component uses the ProductCard component to display each product
-// It also includes a button to filter and display only the top-rated products
-// The top-rated products are filtered based on their rating
-// The component uses the productData array to get the product information
 const Hero = () => {
   const [topRatedProducts, setTopRatedProducts] = useState([]);
-useEffect(() => {
-  fetchProducts();
-}, []);
+  const [productData, setProductData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     const result = await fetch("https://fakestoreapi.com/products");
     const json = await result.json();
-    setTopRatedProducts(json);
+    setProductData(json);
+    setTopRatedProducts(json); // Initially show all products
+    setIsLoading(false); // Set loading to false after fetching
   };
 
   const topRatedProductsdata = () => {
-    setTopRatedProducts(
-      productData.filter((product) => product.rating.rate >= 4)
+    const filteredProducts = productData.filter(
+      (product) => product.rating && product.rating.rate >= 4
     );
-    console.log(topRatedProducts);
+    setTopRatedProducts(filteredProducts);
   };
+
   return (
     <section className="flex flex-col gap-4 px-2 py-2 bg-[#98CAE3]">
       <div className="flex items-center justify-between px-3 py-2 text-lg sm:text-2xl">
         <button
-          className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300  cursor-pointer"
+          className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
           onClick={topRatedProductsdata}
         >
           Top Rated Product
         </button>
         <button
-          className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300  cursor-pointer"
+          className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
           onClick={() => setTopRatedProducts(productData)}
         >
           All Products
         </button>
       </div>
       <div className="flex flex-wrap justify-center gap-4 product-items">
-        {topRatedProducts.map((product, index) => (
-          <ProductCard
-            key={product.id || index}
-            image={product.image}
-            title={product.title}
-            description={product.description}
-            category={product.category}
-            price={product.price}
-          />
-        ))}
+        {isLoading
+          ? Array(20) // Render 8 shimmer placeholders while loading
+              .fill("")
+              .map((_, index) => <ShimmerProductCard key={index} />)
+          : topRatedProducts.map((product, index) => (
+              <ProductCard
+                key={product.id || index}
+                image={product.image}
+                title={product.title}
+                description={product.description}
+                category={product.category}
+                price={product.price}
+              />
+            ))}
       </div>
       <div className="flex flex-col items-center justify-center mt-6 text-center">
         <p className="text-lg sm:text-xl font-small text-gray-800">
