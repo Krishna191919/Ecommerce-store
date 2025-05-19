@@ -2,88 +2,34 @@ import { useEffect, useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
 import Navbar from "./Navbar";
 import ShimmerProductCard from "./shimmerUi";
+import ProductCard from "./Productcard";
 
-const ProductCard = ({ price, image, title, description, category }) => {
-  return (
-    <div className="relative flex flex-col gap-4 px-3 pt-3 pb-5 border-2 border-slate-200 w-full sm:w-72 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 group overflow-hidden">
-      <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
-        ${price}
-      </div>
-      <div className="absolute top-3 left-3 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full z-10">
-        {category}
-      </div>
-      <div className="w-full h-48 flex items-center justify-center overflow-hidden rounded-xl bg-gray-50">
-        <img
-          src={image}
-          alt={title}
-          className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-      <h2
-        className="text-lg font-semibold text-gray-900 mt-2 truncate"
-        title={title}
-      >
-        {title}
-      </h2>
-      <p className="text-gray-600 text-sm line-clamp-2 min-h-[2.5em]">
-        {description}
-      </p>
-      <button className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-300">
-        <FaCartPlus />
-        Add to Cart
-      </button>
-    </div>
-  );
-};
+const Hero = ({ products, isLoading }) => {
+  const [showTopRated, setShowTopRated] = useState(false);
 
-const Hero = () => {
-  const [topRatedProducts, setTopRatedProducts] = useState([]);
-  const [productData, setProductData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    const result = await fetch("https://fakestoreapi.com/products");
-    const json = await result.json();
-    setProductData(json);
-    setTopRatedProducts(json); // Initially show all products
-    setIsLoading(false); // Set loading to false after fetching
-  };
-
-  const topRatedProductsdata = () => {
-    const filteredProducts = productData.filter(
-      (product) => product.rating && product.rating.rate >= 4
-    );
-    setTopRatedProducts(filteredProducts);
-  };
+  // Filter products with rating >= 4 if showTopRated is true
+  const displayedProducts = showTopRated
+    ? products.filter((product) => product.rating && product.rating.rate >= 4)
+    : products;
 
   return (
     <section className="flex flex-col gap-4 px-2 py-2 bg-[#98CAE3]">
-      <div className="flex items-center justify-between px-3 py-2 text-lg sm:text-2xl">
+      <div className="flex justify-start mb-2">
         <button
-          className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
-          onClick={topRatedProductsdata}
+          className="px-4 py-2 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300"
+          onClick={() => setShowTopRated((prev) => !prev)}
         >
-          Top Rated Product
-        </button>
-        <button
-          className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
-          onClick={() => setTopRatedProducts(productData)}
-        >
-          All Products
+          {showTopRated ? "Show All Products" : "Top Rated Product"}
         </button>
       </div>
       <div className="flex flex-wrap justify-center gap-4 product-items">
         {isLoading
-          ? Array(20) // Render 8 shimmer placeholders while loading
+          ? Array(12)
               .fill("")
-              .map((_, index) => <ShimmerProductCard key={index} />)
-          : topRatedProducts.map((product, index) => (
+              .map((_, idx) => <ShimmerProductCard key={idx} />)
+          : displayedProducts.map((product) => (
               <ProductCard
-                key={product.id || index}
+                key={product.id}
                 image={product.image}
                 title={product.title}
                 description={product.description}
