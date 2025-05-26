@@ -7,6 +7,7 @@ import {
   FaHeadset,
 } from "react-icons/fa";
 import { LOGO_URL } from "../utils/constants";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ onSearch, onReset }) => {
   const [search, setSearch] = useState("");
@@ -71,45 +72,45 @@ const Navbar = ({ onSearch, onReset }) => {
       {/* Navigation Links */}
       <ul className="flex justify-between list-none w-64 sm:w-80 gap-6">
         <li>
-          <a
-            href="#"
+          <Link
+            to="/"
             className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
             onClick={onReset}
           >
             <FaHome className="text-base" />
             Home
             <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a
-            href="#"
+          <Link
+            to="/about"
             className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
           >
             <FaInfoCircle className="text-base" />
             About
             <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a
-            href="#"
+          <Link
+            to="/contact"
             className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
           >
             <FaPhoneAlt className="text-base" />
             Contact
             <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a
-            href="#"
+          <Link
+            to="/services"
             className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
           >
             <FaHeadset className="text-base" />
             Service
             <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-          </a>
+          </Link>
         </li>
       </ul>
 

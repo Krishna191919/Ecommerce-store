@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
-import { FaCartPlus } from "react-icons/fa";
-import Navbar from "./Navbar";
+import React, { useState } from "react";
 import ShimmerProductCard from "./shimmerUi";
 import ProductCard from "./Productcard";
+import { Link, useOutletContext } from "react-router-dom";
 
-const Hero = ({ products, isLoading }) => {
+const Hero = () => {
+  const { products = [], isLoading = false } = useOutletContext();
   const [showTopRated, setShowTopRated] = useState(false);
 
-  // Filter products with rating >= 4 if showTopRated is true
   const displayedProducts = showTopRated
     ? products.filter((product) => product.rating && product.rating.rate >= 4)
     : products;
@@ -21,6 +20,12 @@ const Hero = ({ products, isLoading }) => {
         >
           {showTopRated ? "Show All Products" : "Top Rated Product"}
         </button>
+        <button
+          className="ml-4 px-4 py-2 text-sm sm:text-base font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300"
+          onClick={() => setShowTopRated(false)}
+        >
+          Clear Filter
+        </button>
       </div>
       <div className="flex flex-wrap justify-center gap-4 product-items">
         {isLoading
@@ -28,14 +33,16 @@ const Hero = ({ products, isLoading }) => {
               .fill("")
               .map((_, idx) => <ShimmerProductCard key={idx} />)
           : displayedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                image={product.image}
-                title={product.title}
-                description={product.description}
-                category={product.category}
-                price={product.price}
-              />
+              <Link to={`/products/${product.id}`} key={product.id}>
+                <ProductCard
+                  product={product}
+                  image={product.image}
+                  title={product.title}
+                  description={product.description}
+                  category={product.category}
+                  price={product.price}
+                />
+              </Link>
             ))}
       </div>
       <div className="flex flex-col items-center justify-center mt-6 text-center">

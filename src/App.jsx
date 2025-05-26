@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
 import Footer from "./components/Footer";
+import { Outlet } from "react-router-dom";
 
 function App() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch all products on mount
   useEffect(() => {
@@ -34,12 +36,16 @@ function App() {
     );
     setProducts(filtered);
     setIsLoading(false);
+    setSelectedCategory(""); // ← Reset dropdown
+    setSearchQuery(""); // ← Reset search input
   };
 
+  // Pass products and isLoading to Outlet context
   return (
     <>
       <Navbar onSearch={searchProducts} onReset={fetchAllProducts} />
-      <Hero products={products} isLoading={isLoading} />
+      {/* <Services /> */}
+      <Outlet context={{ products, isLoading }} />
       <Footer />
     </>
   );
