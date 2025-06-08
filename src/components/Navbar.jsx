@@ -112,6 +112,15 @@ const Navbar = ({ onSearch, onReset }) => {
             <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
           </Link>
         </li>
+        <li>
+          <Link
+            to="/signin"
+            className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
+          >
+            SignIn
+            <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
+          </Link>
+        </li>
       </ul>
 
       {/* Cart */}

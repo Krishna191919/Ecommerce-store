@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import ShimmerProductCard from "./shimmerUi";
 import { FaStar, FaCartPlus } from "react-icons/fa";
-
+ 
 const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
