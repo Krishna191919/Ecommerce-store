@@ -44,7 +44,6 @@ function App() {
   return (
     <>
       <Navbar onSearch={searchProducts} onReset={fetchAllProducts} />
-      {/* <Services /> */}
       <Outlet context={{ products, isLoading }} />
       <Footer />
     </>

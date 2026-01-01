@@ -8,6 +8,8 @@ import Product from "./components/Product.jsx";
 import "./index.css";
 import Services from "./components/Services.jsx";
 import Contact from "./components/Contact.jsx";
+import Cartpage from "./components/Cartpage.jsx";
+import { CartProvider } from "./context/CartContext";
 
 const appRouter = createBrowserRouter([
   {
@@ -34,12 +36,18 @@ const appRouter = createBrowserRouter([
         path: "contact",
         element: <Contact />,
       },
+      {
+        path: "cart",
+        element: <Cartpage />,
+      },
     ],
   },
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={appRouter} />
+    <CartProvider>
+      <RouterProvider router={appRouter} />
+    </CartProvider>
   </StrictMode>
 );

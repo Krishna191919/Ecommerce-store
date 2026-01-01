@@ -1,11 +1,13 @@
 import { useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import ShimmerProductCard from "./shimmerUi";
+import { CartContext } from "../context/CartContext";
 import { FaStar, FaCartPlus } from "react-icons/fa";
- 
+
 const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -15,6 +17,10 @@ const Product = () => {
     };
     fetchProduct();
   }, [id]);
+
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
 
   if (!product) {
     return (
@@ -58,7 +64,10 @@ const Product = () => {
               ({product.rating?.count} reviews)
             </span>
           </div>
-          <button className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-blue-500 text-white rounded-lg font-medium text-base hover:bg-blue-600 transition-colors">
+          <button
+            className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-blue-500 text-white rounded-lg font-medium text-base hover:bg-blue-600 transition-colors"
+            onClick={handleAddToCart}
+          >
             <FaCartPlus /> Add to Cart
           </button>
         </div>

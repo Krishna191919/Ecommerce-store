@@ -124,10 +124,12 @@ const Navbar = ({ onSearch, onReset }) => {
       </ul>
 
       {/* Cart */}
-      <div className="relative inline-flex items-center gap-2 text-black group hover:text-white transition-colors duration-300 text-base cursor-pointer">
-        <FaCartPlus className="text-base" />
-        Cart
-      </div>
+      <Link to="/cart" className="hidden sm:inline-flex">
+        <div className="relative inline-flex items-center gap-2 text-black group hover:text-white transition-colors duration-300 text-base cursor-pointer">
+          <FaCartPlus className="text-base" />
+          Cart
+        </div>
+      </Link>
     </header>
   );
 };

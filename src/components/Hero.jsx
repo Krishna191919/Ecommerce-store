@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ShimmerProductCard from "./shimmerUi";
-import ProductCard from "./Productcard";
+import ProductCard from "./ProductCard";
 import { Link, useOutletContext } from "react-router-dom";
 
 const Hero = () => {
