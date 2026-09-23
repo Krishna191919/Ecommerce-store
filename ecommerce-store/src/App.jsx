@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { Outlet } from "react-router-dom";
+import { API_BASE_URL } from "./utils/api";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -16,7 +17,7 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("https://fakestoreapi.com/products");
+      const res = await fetch(`${API_BASE_URL}/api/products`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       setProducts(data);
@@ -36,7 +37,7 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("https://fakestoreapi.com/products");
+      const res = await fetch(`${API_BASE_URL}/api/products`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       const filtered = data.filter((item) =>

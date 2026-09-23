@@ -3,6 +3,7 @@ import { useEffect, useState, useContext } from "react";
 import ShimmerProductCard from "./shimmerUi";
 import { CartContext } from "../context/CartContext";
 import { FaStar, FaCartPlus } from "react-icons/fa";
+import { API_BASE_URL } from "../utils/api";
 
 const Product = () => {
   const { id } = useParams();
@@ -16,7 +17,7 @@ const Product = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`https://fakestoreapi.com/products/${id}`);
+        const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const json = await res.json();
         setProduct(json);
