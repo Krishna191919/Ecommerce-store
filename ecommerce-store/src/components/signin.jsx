@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { API_BASE_URL } from "../utils/api";
 
 const Signin = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,11 +16,36 @@ const Signin = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Auth will be connected to .NET backend later
-    console.log(isSignIn ? "Sign In:" : "Sign Up:", formData);
-    alert(`${isSignIn ? "Sign In" : "Sign Up"} successful! (Backend not connected yet)`);
+    setIsLoading(true);
+    try {
+      const endpoint = isSignIn ? "/api/auth/login" : "/api/auth/register";
+      const body = isSignIn
+        ? { email: formData.email, password: formData.password }
+        : { fullName: formData.name, email: formData.email, password: formData.password };
+
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data));
+      alert(`${isSignIn ? "Logged in" : "Account created"} successfully!`);
+    } catch {
+      alert("Failed to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -78,9 +105,10 @@ const Signin = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-300 mt-2"
+            disabled={isLoading}
+            className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-300 mt-2 disabled:opacity-50"
           >
-            {isSignIn ? "Sign In" : "Sign Up"}
+            {isLoading ? "Please wait..." : isSignIn ? "Sign In" : "Sign Up"}
           </button>
         </form>
 
