@@ -148,6 +148,18 @@ namespace ecommerce_api.Data
 );
 
 
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 999,
+                    FullName = "Admin",
+                    Email = "admin@store.com",
+                    PasswordHash = "$2a$11$LyEKv.tCDMiUNvHt/jd0me0etoZrZ2uPDKJJ40gTBfZAVj9rbCeUa",
+                    Role = "admin",
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();

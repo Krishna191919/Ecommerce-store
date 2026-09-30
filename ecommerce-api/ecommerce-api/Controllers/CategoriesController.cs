@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ecommerce_api.Data;
 using ecommerce_api.DTOs;
+using ecommerce_api.Models;
 
 namespace ecommerce_api.Controllers
 {
@@ -59,6 +61,60 @@ namespace ecommerce_api.Controllers
                 .ToListAsync();
 
             return Ok(products);
+        }
+
+        // POST: api/categories
+        [Authorize(Roles = "admin")]
+        [HttpPost]
+        public async Task<ActionResult<CategoryDto>> CreateCategory(CategoryCreateDto request)
+        {
+            var category = new Category
+            {
+                Name = request.Name,
+                Description = request.Description
+            };
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            var dto = new CategoryDto { Id = category.Id, Name = category.Name };
+            return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, dto);
+        }
+
+        // PUT: api/categories/5
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, CategoryCreateDto request)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            category.Name = request.Name;
+            category.Description = request.Description;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE: api/categories/5
+        [Authorize(Roles = "admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var category = await _context.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            if (category.Products.Any())
+                return BadRequest(new { message = "Cannot delete category with existing products. Reassign or delete products first." });
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
