@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { API_BASE_URL } from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -41,6 +43,7 @@ const Signin = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
       alert(`${isSignIn ? "Logged in" : "Account created"} successfully!`);
+      navigate("/");
     } catch {
       alert("Failed to connect to server");
     } finally {

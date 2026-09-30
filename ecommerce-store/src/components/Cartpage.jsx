@@ -1,11 +1,49 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { FaTrash, FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../utils/auth";
+import { apiFetch } from "../utils/auth";
 
 const Cartpage = () => {
   const { cart, removeFromCart, updateQuantity, clearCart, getTotal } =
     useContext(CartContext);
+  const navigate = useNavigate();
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [address, setAddress] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCheckout = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const res = await apiFetch("/api/orders/checkout", {
+        method: "POST",
+        body: JSON.stringify({ shippingAddress: address }),
+      });
+      if (res.ok) {
+        clearCart();
+        alert("Order placed successfully!");
+        navigate("/");
+      } else {
+        const data = await res.json();
+        alert(data.message || "Checkout failed");
+      }
+    } catch {
+      alert("Failed to connect to server");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCheckoutClick = () => {
+    if (!isLoggedIn()) {
+      alert("Please sign in to checkout");
+      navigate("/signin");
+      return;
+    }
+    setShowCheckout(true);
+  };
 
   if (cart.length === 0) {
     return (
@@ -106,9 +144,45 @@ const Cartpage = () => {
             ${getTotal().toFixed(2)}
           </span>
         </div>
-        <button className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors text-lg">
-          Proceed to Checkout
-        </button>
+
+        {showCheckout ? (
+          <form onSubmit={handleCheckout} className="flex flex-col gap-4">
+            <label className="text-sm font-semibold text-gray-700">
+              Shipping Address
+            </label>
+            <textarea
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              rows={3}
+              placeholder="Enter your full shipping address..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+            />
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCheckout(false)}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? "Placing Order..." : "Place Order"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <button
+            onClick={handleCheckoutClick}
+            className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors text-lg"
+          >
+            Proceed to Checkout
+          </button>
+        )}
       </div>
     </div>
   );

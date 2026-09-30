@@ -5,15 +5,19 @@ import {
   FaInfoCircle,
   FaPhoneAlt,
   FaHeadset,
+  FaUser,
 } from "react-icons/fa";
 import { LOGO_URL } from "../utils/constants";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
+import { isLoggedIn, getUser, logout } from "../utils/auth";
 
 const Navbar = ({ onSearch, onReset }) => {
   const [search, setSearch] = useState("");
   const { getItemCount } = useContext(CartContext);
   const itemCount = getItemCount();
+  const navigate = useNavigate();
+  const user = getUser();
 
   const handleSearch = () => {
     onSearch(search);
@@ -116,13 +120,32 @@ const Navbar = ({ onSearch, onReset }) => {
           </Link>
         </li>
         <li>
-          <Link
-            to="/signin"
-            className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
-          >
-            SignIn
-            <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
-          </Link>
+          {isLoggedIn() ? (
+            <div className="flex items-center gap-3 text-base">
+              <span className="flex items-center gap-1 font-semibold">
+                <FaUser />
+                {user?.fullName?.split(" ")[0] || "User"}
+              </span>
+              <button
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                  window.location.reload();
+                }}
+                className="text-red-600 hover:text-red-800 font-semibold"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/signin"
+              className="relative inline-flex items-center gap-2 text-black group hover:text-white text-base"
+            >
+              SignIn
+              <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-transparent transition-all duration-300 group-hover:w-full group-hover:bg-blue-600 group-hover:rounded-md"></span>
+            </Link>
+          )}
         </li>
       </ul>
 
