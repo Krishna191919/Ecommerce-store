@@ -53,6 +53,8 @@ namespace ecommerce_api.Controllers
                     Description = p.Description ?? "",
                     Category = p.Category.Name,
                     CategoryId = p.CategoryId,
+                    VendorId = p.VendorId,
+                    VendorName = p.Vendor.FullName,
                     Image = p.ImageUrl ?? "",
                     Rating = new RatingDto
                     {

@@ -23,6 +23,9 @@ namespace ecommerce_api.Models
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
 
+        public int VendorId { get; set; }
+        public User Vendor { get; set; } = null!;
+
         public double Rating { get; set; }
         public int RatingCount { get; set; }
 

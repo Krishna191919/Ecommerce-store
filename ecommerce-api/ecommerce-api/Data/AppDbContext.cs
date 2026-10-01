@@ -33,6 +33,7 @@ namespace ecommerce_api.Data
         Price = 109.95m,
         ImageUrl = "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png",
         CategoryId = 1,
+        VendorId = 999,
         Rating = 3.9,
         RatingCount = 120,
         CreatedAt = DateTime.UtcNow
@@ -45,6 +46,7 @@ namespace ecommerce_api.Data
         Price = 22.3m,
         ImageUrl = "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_t.png",
         CategoryId = 1,
+        VendorId = 999,
         Rating = 4.1,
         RatingCount = 259,
         CreatedAt = DateTime.UtcNow
@@ -57,6 +59,7 @@ namespace ecommerce_api.Data
         Price = 55.99m,
         ImageUrl = "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_t.png",
         CategoryId = 1,
+        VendorId = 999,
         Rating = 4.7,
         RatingCount = 500,
         CreatedAt = DateTime.UtcNow
@@ -69,6 +72,7 @@ namespace ecommerce_api.Data
         Price = 695.0m,
         ImageUrl = "https://fakestoreapi.com/img/71pWzhdJNwL._AC_UL640_QL65_ML3_t.png",
         CategoryId = 2,
+        VendorId = 999,
         Rating = 4.6,
         RatingCount = 400,
         CreatedAt = DateTime.UtcNow
@@ -81,6 +85,7 @@ namespace ecommerce_api.Data
         Price = 64.0m,
         ImageUrl = "https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_t.png",
         CategoryId = 3,
+        VendorId = 999,
         Rating = 3.3,
         RatingCount = 203,
         CreatedAt = DateTime.UtcNow
@@ -93,6 +98,7 @@ namespace ecommerce_api.Data
         Price = 114.0m,
         ImageUrl = "https://fakestoreapi.com/img/61mtL65D4cL._AC_SX679_t.png",
         CategoryId = 3,
+        VendorId = 999,
         Rating = 4.8,
         RatingCount = 400,
         CreatedAt = DateTime.UtcNow
@@ -105,6 +111,7 @@ namespace ecommerce_api.Data
         Price = 599.0m,
         ImageUrl = "https://fakestoreapi.com/img/81QpkIctqPL._AC_SX679_t.png",
         CategoryId = 3,
+        VendorId = 999,
         Rating = 2.9,
         RatingCount = 250,
         CreatedAt = DateTime.UtcNow
@@ -117,6 +124,7 @@ namespace ecommerce_api.Data
         Price = 999.99m,
         ImageUrl = "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_t.png",
         CategoryId = 3,
+        VendorId = 999,
         Rating = 2.2,
         RatingCount = 140,
         CreatedAt = DateTime.UtcNow
@@ -129,6 +137,7 @@ namespace ecommerce_api.Data
         Price = 56.99m,
         ImageUrl = "https://fakestoreapi.com/img/51Y5NI-I5jL._AC_UX679_t.png",
         CategoryId = 4,
+        VendorId = 999,
         Rating = 2.6,
         RatingCount = 235,
         CreatedAt = DateTime.UtcNow
@@ -141,6 +150,7 @@ namespace ecommerce_api.Data
         Price = 29.95m,
         ImageUrl = "https://fakestoreapi.com/img/81XH0e8fefL._AC_UY879_t.png",
         CategoryId = 4,
+        VendorId = 999,
         Rating = 2.9,
         RatingCount = 340,
         CreatedAt = DateTime.UtcNow
@@ -163,6 +173,12 @@ namespace ecommerce_api.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Vendor)
+                .WithMany(u => u.Products)
+                .HasForeignKey(p => p.VendorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CartItem>()
                 .HasIndex(c => new { c.UserId, c.ProductId })

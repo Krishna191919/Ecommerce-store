@@ -18,7 +18,7 @@ namespace ecommerce_api.Models
         public string PasswordHash { get; set; } = string.Empty;
 
         [MaxLength(20)]
-        public string Role { get; set; } = "user";
+        public string Role { get; set; } = "buyer";
 
         [MaxLength(20)]
         public string? PhoneNumber { get; set; }
@@ -27,5 +27,6 @@ namespace ecommerce_api.Models
 
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
