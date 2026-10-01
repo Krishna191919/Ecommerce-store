@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "./utils/api";
 
 function App() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchAllProducts();
-  }, []);
+  const { pathname } = useLocation();
+  const isInitialLoad = useRef(true);
 
   const fetchAllProducts = async () => {
-    setIsLoading(true);
+    if (isInitialLoad.current) setIsLoading(true);
     setError(null);
     try {
       const res = await fetch(`${API_BASE_URL}/api/products`);
@@ -25,9 +23,16 @@ function App() {
       console.error("Failed to fetch products:", err);
       setError("Failed to load products. Please try again later.");
     } finally {
-      setIsLoading(false);
+      if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+        setIsLoading(false);
+      }
     }
   };
+
+  useEffect(() => {
+    fetchAllProducts();
+  }, [pathname]);
 
   const searchProducts = async (query) => {
     if (!query) {

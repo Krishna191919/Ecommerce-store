@@ -126,6 +126,14 @@ const Navbar = ({ onSearch, onReset }) => {
                 <FaUser />
                 {user?.fullName?.split(" ")[0] || "User"}
               </span>
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="px-2 py-1 text-xs font-bold uppercase bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
               <button
                 onClick={() => {
                   logout();

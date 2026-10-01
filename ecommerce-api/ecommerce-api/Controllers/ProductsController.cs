@@ -31,6 +31,7 @@ namespace ecommerce_api.Controllers
                     Price = p.Price,
                     Description = p.Description ?? "",
                     Category = p.Category.Name,
+                    CategoryId = p.CategoryId,
                     Image = p.ImageUrl ?? "",
                     Rating = new RatingDto
                     {
@@ -57,6 +58,7 @@ namespace ecommerce_api.Controllers
                     Price = p.Price,
                     Description = p.Description ?? "",
                     Category = p.Category.Name,
+                    CategoryId = p.CategoryId,
                     Image = p.ImageUrl ?? "",
                     Rating = new RatingDto
                     {
@@ -103,6 +105,7 @@ namespace ecommerce_api.Controllers
                 Price = product.Price,
                 Description = product.Description ?? "",
                 Category = category.Name,
+                CategoryId = category.Id,
                 Image = product.ImageUrl ?? "",
                 Rating = new RatingDto { Rate = product.Rating, Count = product.RatingCount }
             };

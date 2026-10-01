@@ -26,7 +26,8 @@ namespace ecommerce_api.Controllers
                 .Select(c => new CategoryDto
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    Description = c.Description
                 })
                 .ToListAsync();
 
@@ -51,6 +52,7 @@ namespace ecommerce_api.Controllers
                     Price = p.Price,
                     Description = p.Description ?? "",
                     Category = p.Category.Name,
+                    CategoryId = p.CategoryId,
                     Image = p.ImageUrl ?? "",
                     Rating = new RatingDto
                     {
@@ -77,7 +79,7 @@ namespace ecommerce_api.Controllers
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            var dto = new CategoryDto { Id = category.Id, Name = category.Name };
+            var dto = new CategoryDto { Id = category.Id, Name = category.Name, Description = category.Description };
             return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, dto);
         }
 

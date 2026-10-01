@@ -11,6 +11,8 @@ import Contact from "./components/Contact.jsx";
 import Cartpage from "./components/Cartpage.jsx";
 import Signin from "./components/signin.jsx";
 import { CartProvider } from "./context/CartContext";
+import RequireAdmin from "./components/admin/RequireAdmin.jsx";
+import AdminPanel from "./components/admin/AdminPanel.jsx";
 
 const appRouter = createBrowserRouter([
   {
@@ -44,6 +46,14 @@ const appRouter = createBrowserRouter([
       {
         path: "signin",
         element: <Signin />,
+      },
+      {
+        path: "admin",
+        element: (
+          <RequireAdmin>
+            <AdminPanel />
+          </RequireAdmin>
+        ),
       },
     ],
   },
