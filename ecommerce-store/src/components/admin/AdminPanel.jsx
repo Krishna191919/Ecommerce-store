@@ -1,23 +1,26 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiFetch } from "../../utils/auth";
-import { getUser } from "../../utils/auth";
+import { apiFetch, getUser } from "../../utils/auth";
 import AdminProducts from "./AdminProducts";
 import AdminCategories from "./AdminCategories";
+import AdminUsers from "./AdminUsers";
 
-const AdminPanel = () => {
+const AdminPanel = ({ mode = "admin" }) => {
+  const isVendor = mode === "vendor";
   const [tab, setTab] = useState("products");
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loadError, setLoadError] = useState("");
 
   const refreshProducts = useCallback(async () => {
     try {
-      const res = await apiFetch("/api/products");
+      const endpoint = isVendor ? "/api/products/mine" : "/api/products";
+      const res = await apiFetch(endpoint);
       if (res.ok) setProducts(await res.json());
     } catch {
       setLoadError("Failed to load products");
     }
-  }, []);
+  }, [isVendor]);
 
   const refreshCategories = useCallback(async () => {
     try {
@@ -28,10 +31,20 @@ const AdminPanel = () => {
     }
   }, []);
 
+  const refreshUsers = useCallback(async () => {
+    try {
+      const res = await apiFetch("/api/users");
+      if (res.ok) setUsers(await res.json());
+    } catch {
+      setLoadError("Failed to load users");
+    }
+  }, []);
+
   useEffect(() => {
     refreshProducts();
     refreshCategories();
-  }, [refreshProducts, refreshCategories]);
+    if (!isVendor) refreshUsers();
+  }, [refreshProducts, refreshCategories, refreshUsers, isVendor]);
 
   const user = getUser();
 
@@ -46,24 +59,36 @@ const AdminPanel = () => {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {isVendor ? "Vendor Dashboard" : "Admin Panel"}
+          </h1>
           <p className="text-sm text-gray-500">
-            Signed in as {user?.email}
+            Signed in as {user?.email} · {user?.role}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setTab("products")}
             className={tabClass("products")}
           >
             Products ({products.length})
           </button>
-          <button
-            onClick={() => setTab("categories")}
-            className={tabClass("categories")}
-          >
-            Categories ({categories.length})
-          </button>
+          {!isVendor && (
+            <button
+              onClick={() => setTab("categories")}
+              className={tabClass("categories")}
+            >
+              Categories ({categories.length})
+            </button>
+          )}
+          {!isVendor && (
+            <button
+              onClick={() => setTab("users")}
+              className={tabClass("users")}
+            >
+              Users ({users.length})
+            </button>
+          )}
         </div>
       </div>
 
@@ -73,20 +98,26 @@ const AdminPanel = () => {
         </div>
       )}
 
-      {tab === "products" ? (
+      {tab === "products" && (
         <AdminProducts
           products={products}
           categories={categories}
           refresh={refreshProducts}
           refreshCategories={refreshCategories}
         />
-      ) : (
+      )}
+
+      {!isVendor && tab === "categories" && (
         <AdminCategories
           categories={categories}
           products={products}
           refresh={refreshCategories}
           refreshProducts={refreshProducts}
         />
+      )}
+
+      {!isVendor && tab === "users" && (
+        <AdminUsers users={users} refresh={refreshUsers} />
       )}
     </div>
   );

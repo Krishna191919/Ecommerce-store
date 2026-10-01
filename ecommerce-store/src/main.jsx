@@ -12,8 +12,9 @@ import Cartpage from "./components/Cartpage.jsx";
 import Signin from "./components/signin.jsx";
 import { CartProvider } from "./context/CartContext";
 import { ToastProvider } from "./context/ToastContext";
-import RequireAdmin from "./components/admin/RequireAdmin.jsx";
+import RequireRole from "./components/admin/RequireRole.jsx";
 import AdminPanel from "./components/admin/AdminPanel.jsx";
+import MyOrders from "./components/MyOrders.jsx";
 
 const appRouter = createBrowserRouter([
   {
@@ -51,9 +52,25 @@ const appRouter = createBrowserRouter([
       {
         path: "admin",
         element: (
-          <RequireAdmin>
-            <AdminPanel />
-          </RequireAdmin>
+          <RequireRole roles={["admin"]}>
+            <AdminPanel mode="admin" />
+          </RequireRole>
+        ),
+      },
+      {
+        path: "vendor",
+        element: (
+          <RequireRole roles={["vendor", "admin"]}>
+            <AdminPanel mode="vendor" />
+          </RequireRole>
+        ),
+      },
+      {
+        path: "orders",
+        element: (
+          <RequireRole roles={["buyer", "vendor", "admin"]}>
+            <MyOrders />
+          </RequireRole>
         ),
       },
     ],

@@ -139,6 +139,10 @@ namespace ecommerce_api.Controllers
             if (!CanManage(product))
                 return Forbid();
 
+            var hasOrderItems = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
+            if (hasOrderItems)
+                return BadRequest(new { message = "Cannot delete a product that has been ordered" });
+
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
             return NoContent();

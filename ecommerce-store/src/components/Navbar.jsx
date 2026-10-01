@@ -121,17 +121,31 @@ const Navbar = ({ onSearch, onReset }) => {
         </li>
         <li>
           {isLoggedIn() ? (
-            <div className="flex items-center gap-3 text-base">
-              <span className="flex items-center gap-1 font-semibold">
+            <div className="flex items-center gap-2 text-base">
+              <span className="hidden sm:flex items-center gap-1 font-semibold">
                 <FaUser />
                 {user?.fullName?.split(" ")[0] || "User"}
               </span>
+              <Link
+                to="/orders"
+                className="px-2 py-1 text-xs font-bold uppercase bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                Orders
+              </Link>
               {user?.role === "admin" && (
                 <Link
                   to="/admin"
                   className="px-2 py-1 text-xs font-bold uppercase bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"
                 >
                   Admin
+                </Link>
+              )}
+              {user?.role === "vendor" && (
+                <Link
+                  to="/vendor"
+                  className="px-2 py-1 text-xs font-bold uppercase bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors"
+                >
+                  Vendor
                 </Link>
               )}
               <button
