@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { apiFetch } from "../../utils/auth";
 import { extractError } from "./errors";
+import { ToastContext } from "../../context/ToastContext";
 import AdminProductForm from "./AdminProductForm";
 
 const AdminProducts = ({ products, categories, refresh, refreshCategories }) => {
@@ -8,6 +9,7 @@ const AdminProducts = ({ products, categories, refresh, refreshCategories }) => 
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(null);
+  const { showToast } = useContext(ToastContext);
 
   const filtered = products.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase())
@@ -23,17 +25,21 @@ const AdminProducts = ({ products, categories, refresh, refreshCategories }) => 
           method: "DELETE",
         });
         if (!res.ok) {
-          setError(await extractError(res));
+          const msg = await extractError(res);
+          setError(msg);
+          showToast(msg, "error");
           return;
         }
+        showToast(`"${product.title}" deleted`, "success");
         refresh();
       } catch {
         setError("Failed to connect to server");
+        showToast("Failed to connect to server", "error");
       } finally {
         setDeleting(null);
       }
     },
-    [refresh]
+    [refresh, showToast]
   );
 
   useEffect(() => {

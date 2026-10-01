@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { apiFetch } from "../../utils/auth";
 import { extractError } from "./errors";
+import { ToastContext } from "../../context/ToastContext";
 
 const empty = {
   title: "",
@@ -17,6 +18,7 @@ const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const { showToast } = useContext(ToastContext);
 
   useEffect(() => {
     if (product) {
@@ -59,12 +61,21 @@ const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
         : await apiFetch("/api/products", { method: "POST", body });
 
       if (!res.ok) {
-        setError(await extractError(res));
+        const msg = await extractError(res);
+        setError(msg);
+        showToast(msg, "error");
         return;
       }
+      showToast(
+        isEdit
+          ? `"${form.title}" updated`
+          : `"${form.title}" added to catalog`,
+        "success"
+      );
       onSaved();
     } catch {
       setError("Failed to connect to server");
+      showToast("Failed to connect to server", "error");
     } finally {
       setSaving(false);
     }

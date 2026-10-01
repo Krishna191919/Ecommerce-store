@@ -11,6 +11,7 @@ import Contact from "./components/Contact.jsx";
 import Cartpage from "./components/Cartpage.jsx";
 import Signin from "./components/signin.jsx";
 import { CartProvider } from "./context/CartContext";
+import { ToastProvider } from "./context/ToastContext";
 import RequireAdmin from "./components/admin/RequireAdmin.jsx";
 import AdminPanel from "./components/admin/AdminPanel.jsx";
 
@@ -62,7 +63,9 @@ const appRouter = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <CartProvider>
-      <RouterProvider router={appRouter} />
+      <ToastProvider>
+        <RouterProvider router={appRouter} />
+      </ToastProvider>
     </CartProvider>
   </StrictMode>
 );

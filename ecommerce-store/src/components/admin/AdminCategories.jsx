@@ -1,12 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useContext } from "react";
 import { apiFetch } from "../../utils/auth";
 import { extractError } from "./errors";
+import { ToastContext } from "../../context/ToastContext";
 import AdminCategoryForm from "./AdminCategoryForm";
 
 const AdminCategories = ({ categories, products, refresh, refreshProducts }) => {
   const [form, setForm] = useState(null); // null | "new" | category object
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(null);
+  const { showToast } = useContext(ToastContext);
 
   const countFor = (id) => products.filter((p) => p.categoryId === id).length;
 
@@ -20,18 +22,22 @@ const AdminCategories = ({ categories, products, refresh, refreshProducts }) => 
           method: "DELETE",
         });
         if (!res.ok) {
-          setError(await extractError(res));
+          const msg = await extractError(res);
+          setError(msg);
+          showToast(msg, "error");
           return;
         }
+        showToast(`Category "${category.name}" deleted`, "success");
         refresh();
         refreshProducts();
       } catch {
         setError("Failed to connect to server");
+        showToast("Failed to connect to server", "error");
       } finally {
         setDeleting(null);
       }
     },
-    [refresh, refreshProducts]
+    [refresh, refreshProducts, showToast]
   );
 
   return (

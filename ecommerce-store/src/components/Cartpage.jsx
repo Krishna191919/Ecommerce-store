@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
+import { ToastContext } from "../context/ToastContext";
 import { FaTrash, FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { isLoggedIn } from "../utils/auth";
@@ -8,6 +9,7 @@ import { apiFetch } from "../utils/auth";
 const Cartpage = () => {
   const { cart, removeFromCart, updateQuantity, clearCart, getTotal } =
     useContext(CartContext);
+  const { showToast } = useContext(ToastContext);
   const navigate = useNavigate();
   const [showCheckout, setShowCheckout] = useState(false);
   const [address, setAddress] = useState("");
@@ -22,15 +24,16 @@ const Cartpage = () => {
         body: JSON.stringify({ shippingAddress: address }),
       });
       if (res.ok) {
+        const order = await res.json();
         clearCart();
-        alert("Order placed successfully!");
+        showToast(`Order #${order.id} placed successfully!`, "success");
         navigate("/");
       } else {
         const data = await res.json();
-        alert(data.message || "Checkout failed");
+        showToast(data.message || "Checkout failed", "error");
       }
     } catch {
-      alert("Failed to connect to server");
+      showToast("Failed to connect to server", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -38,7 +41,7 @@ const Cartpage = () => {
 
   const handleCheckoutClick = () => {
     if (!isLoggedIn()) {
-      alert("Please sign in to checkout");
+      showToast("Please sign in to checkout", "info");
       navigate("/signin");
       return;
     }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { API_BASE_URL } from "../utils/api";
+import { ToastContext } from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
@@ -8,6 +9,7 @@ const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useContext(ToastContext);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,16 +38,19 @@ const Signin = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Something went wrong");
+        showToast(data.message || "Something went wrong", "error");
         return;
       }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
-      alert(`${isSignIn ? "Logged in" : "Account created"} successfully!`);
+      showToast(
+        isSignIn ? `Welcome back, ${data.fullName}!` : "Account created successfully!",
+        "success"
+      );
       navigate("/");
     } catch {
-      alert("Failed to connect to server");
+      showToast("Failed to connect to server", "error");
     } finally {
       setIsLoading(false);
     }

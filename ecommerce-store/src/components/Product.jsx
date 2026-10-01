@@ -2,6 +2,7 @@ import { useParams } from "react-router";
 import { useEffect, useState, useContext } from "react";
 import ShimmerProductCard from "./shimmerUi";
 import { CartContext } from "../context/CartContext";
+import { ToastContext } from "../context/ToastContext";
 import { FaStar, FaCartPlus } from "react-icons/fa";
 import { API_BASE_URL } from "../utils/api";
 
@@ -11,6 +12,7 @@ const Product = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart } = useContext(CartContext);
+  const { showToast } = useContext(ToastContext);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -33,6 +35,7 @@ const Product = () => {
 
   const handleAddToCart = () => {
     addToCart(product);
+    showToast(`"${product.title}" added to cart`, "success");
   };
 
   if (isLoading) {

@@ -1,12 +1,15 @@
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import { ToastContext } from "../context/ToastContext";
 import { FaCartPlus } from "react-icons/fa";
 
 const ProductCard = ({ id, price, image, title, description, category }) => {
   const { addToCart } = useContext(CartContext);
+  const { showToast } = useContext(ToastContext);
 
   const handleAddToCart = () => {
     addToCart({ id, price, image, title, description, category });
+    showToast(`"${title}" added to cart`, "success");
   };
 
   return (
