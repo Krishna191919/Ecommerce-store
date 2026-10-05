@@ -48,10 +48,20 @@ export const CartProvider = ({ children }) => {
           });
           if (res.ok) {
             refreshCart();
-            return;
+            return { ok: true };
           }
+          // Server rejected (e.g. own product, expired token) — never fall
+          // through to the guest cart, the item must not appear locally.
+          let message = `Request failed (${res.status})`;
+          try {
+            const data = await res.json();
+            if (data?.message) message = data.message;
+          } catch {
+            // non-JSON error body
+          }
+          return { ok: false, message };
         } catch {
-          // fall through to local
+          return { ok: false, message: "Failed to connect to server" };
         }
       }
       setCart((prev) => {
@@ -64,6 +74,7 @@ export const CartProvider = ({ children }) => {
         saveLocalCart(next);
         return next;
       });
+      return { ok: true };
     },
     [refreshCart]
   );

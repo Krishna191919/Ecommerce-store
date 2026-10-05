@@ -5,6 +5,7 @@ import { CartContext } from "../context/CartContext";
 import { ToastContext } from "../context/ToastContext";
 import { FaStar, FaCartPlus } from "react-icons/fa";
 import { API_BASE_URL } from "../utils/api";
+import { getUser } from "../utils/auth";
 
 const Product = () => {
   const { id } = useParams();
@@ -33,10 +34,19 @@ const Product = () => {
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
-    addToCart(product);
+  const handleAddToCart = async () => {
+    const result = await addToCart(product);
+    if (result?.ok === false) {
+      showToast(result.message, "error");
+      return;
+    }
     showToast(`"${product.title}" added to cart`, "success");
   };
+
+  const user = getUser();
+  const isOwnProduct =
+    product?.vendorId != null && user?.userId != null &&
+    String(product.vendorId) === String(user.userId);
 
   if (isLoading) {
     return (
@@ -98,12 +108,21 @@ const Product = () => {
               ({product.rating?.count} reviews)
             </span>
           </div>
-          <button
-            className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-blue-500 text-white rounded-lg font-medium text-base hover:bg-blue-600 transition-colors"
-            onClick={handleAddToCart}
-          >
-            <FaCartPlus /> Add to Cart
-          </button>
+          {isOwnProduct ? (
+            <button
+              disabled
+              className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-gray-200 text-gray-600 rounded-lg font-medium text-base cursor-not-allowed"
+            >
+              Your product — manage it from your dashboard
+            </button>
+          ) : (
+            <button
+              className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-blue-500 text-white rounded-lg font-medium text-base hover:bg-blue-600 transition-colors"
+              onClick={handleAddToCart}
+            >
+              <FaCartPlus /> Add to Cart
+            </button>
+          )}
         </div>
       </div>
     </div>

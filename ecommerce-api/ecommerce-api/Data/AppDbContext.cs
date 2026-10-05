@@ -14,6 +14,7 @@ namespace ecommerce_api.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<VendorApplication> VendorApplications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -183,6 +184,18 @@ namespace ecommerce_api.Data
             modelBuilder.Entity<CartItem>()
                 .HasIndex(c => new { c.UserId, c.ProductId })
                 .IsUnique();
+
+            modelBuilder.Entity<VendorApplication>()
+                .HasOne(v => v.User)
+                .WithMany()
+                .HasForeignKey(v => v.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<VendorApplication>()
+                .HasIndex(v => v.UserId);
+
+            modelBuilder.Entity<VendorApplication>()
+                .HasIndex(v => v.Status);
         }
     }
 }

@@ -3,6 +3,8 @@ import { apiFetch, getUser } from "../../utils/auth";
 import AdminProducts from "./AdminProducts";
 import AdminCategories from "./AdminCategories";
 import AdminUsers from "./AdminUsers";
+import VendorRequests from "./VendorRequests";
+import AdminOrders from "./AdminOrders";
 
 const AdminPanel = ({ mode = "admin" }) => {
   const isVendor = mode === "vendor";
@@ -10,6 +12,7 @@ const AdminPanel = ({ mode = "admin" }) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
+  const [vendorRequests, setVendorRequests] = useState(0);
   const [loadError, setLoadError] = useState("");
 
   const refreshProducts = useCallback(async () => {
@@ -40,11 +43,23 @@ const AdminPanel = ({ mode = "admin" }) => {
     }
   }, []);
 
+  const refreshVendorRequests = useCallback(async () => {
+    try {
+      const res = await apiFetch("/api/vendor-applications?status=pending");
+      if (res.ok) setVendorRequests((await res.json()).length);
+    } catch {
+      // non-critical
+    }
+  }, []);
+
   useEffect(() => {
     refreshProducts();
     refreshCategories();
-    if (!isVendor) refreshUsers();
-  }, [refreshProducts, refreshCategories, refreshUsers, isVendor]);
+    if (!isVendor) {
+      refreshUsers();
+      refreshVendorRequests();
+    }
+  }, [refreshProducts, refreshCategories, refreshUsers, refreshVendorRequests, isVendor]);
 
   const user = getUser();
 
@@ -83,10 +98,26 @@ const AdminPanel = ({ mode = "admin" }) => {
           )}
           {!isVendor && (
             <button
+              onClick={() => setTab("vendorRequests")}
+              className={tabClass("vendorRequests")}
+            >
+              Vendor Requests {vendorRequests > 0 && `(${vendorRequests})`}
+            </button>
+          )}
+          {!isVendor && (
+            <button
               onClick={() => setTab("users")}
               className={tabClass("users")}
             >
               Users ({users.length})
+            </button>
+          )}
+          {!isVendor && (
+            <button
+              onClick={() => setTab("orders")}
+              className={tabClass("orders")}
+            >
+              Orders
             </button>
           )}
         </div>
@@ -115,6 +146,12 @@ const AdminPanel = ({ mode = "admin" }) => {
           refreshProducts={refreshProducts}
         />
       )}
+
+      {!isVendor && tab === "vendorRequests" && (
+        <VendorRequests onCountChange={refreshVendorRequests} />
+      )}
+
+      {!isVendor && tab === "orders" && <AdminOrders />}
 
       {!isVendor && tab === "users" && (
         <AdminUsers users={users} refresh={refreshUsers} />

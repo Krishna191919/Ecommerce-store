@@ -50,14 +50,17 @@ namespace ecommerce_api.Controllers
         [HttpPost]
         public async Task<ActionResult<CartItemDto>> AddToCart(AddToCartDto request)
         {
+            var userId = GetUserId();
             var product = await _context.Products.FindAsync(request.ProductId);
             if (product == null)
                 return NotFound(new { message = "Product not found" });
 
+            if (product.VendorId == userId && !User.IsInRole("admin"))
+                return BadRequest(new { message = "You cannot buy your own product" });
+
             if (request.Quantity < 1)
                 return BadRequest(new { message = "Quantity must be at least 1" });
 
-            var userId = GetUserId();
             var existing = await _context.CartItems
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == request.ProductId);
 

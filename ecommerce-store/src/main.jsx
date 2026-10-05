@@ -15,6 +15,7 @@ import { ToastProvider } from "./context/ToastContext";
 import RequireRole from "./components/admin/RequireRole.jsx";
 import AdminPanel from "./components/admin/AdminPanel.jsx";
 import MyOrders from "./components/MyOrders.jsx";
+import BecomeVendor from "./components/BecomeVendor.jsx";
 
 const appRouter = createBrowserRouter([
   {
@@ -64,6 +65,10 @@ const appRouter = createBrowserRouter([
             <AdminPanel mode="vendor" />
           </RequireRole>
         ),
+      },
+      {
+        path: "become-vendor",
+        element: <BecomeVendor />,
       },
       {
         path: "orders",

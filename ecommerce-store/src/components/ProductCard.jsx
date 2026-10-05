@@ -1,14 +1,40 @@
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
 import { ToastContext } from "../context/ToastContext";
-import { FaCartPlus } from "react-icons/fa";
+import { getUser } from "../utils/auth";
+import { FaCartPlus, FaBoxOpen } from "react-icons/fa";
 
-const ProductCard = ({ id, price, image, title, description, category }) => {
+const ProductCard = ({
+  id,
+  price,
+  image,
+  title,
+  description,
+  category,
+  vendorId,
+}) => {
   const { addToCart } = useContext(CartContext);
   const { showToast } = useContext(ToastContext);
+  const user = getUser();
+  const isOwnProduct =
+    vendorId !== undefined && user?.userId != null &&
+    String(vendorId) === String(user.userId);
 
-  const handleAddToCart = () => {
-    addToCart({ id, price, image, title, description, category });
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const result = await addToCart({
+      id,
+      price,
+      image,
+      title,
+      description,
+      category,
+    });
+    if (result?.ok === false) {
+      showToast(result.message, "error");
+      return;
+    }
     showToast(`"${title}" added to cart`, "success");
   };
 
@@ -36,13 +62,23 @@ const ProductCard = ({ id, price, image, title, description, category }) => {
       <p className="text-gray-600 text-sm line-clamp-2 min-h-[2.5em]">
         {description}
       </p>
-      <button
-        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-300"
-        onClick={handleAddToCart}
-      >
-        <FaCartPlus />
-        Add to Cart
-      </button>
+      {isOwnProduct ? (
+        <button
+          disabled
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-600 font-semibold rounded-lg cursor-not-allowed"
+        >
+          <FaBoxOpen />
+          Your product
+        </button>
+      ) : (
+        <button
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-300"
+          onClick={handleAddToCart}
+        >
+          <FaCartPlus />
+          Add to Cart
+        </button>
+      )}
     </div>
   );
 };

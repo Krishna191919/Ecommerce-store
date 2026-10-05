@@ -132,6 +132,14 @@ const Navbar = ({ onSearch, onReset }) => {
               >
                 Orders
               </Link>
+              {user?.role === "buyer" && (
+                <Link
+                  to="/become-vendor"
+                  className="px-2 py-1 text-xs font-bold uppercase bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors"
+                >
+                  Become a Vendor
+                </Link>
+              )}
               {user?.role === "admin" && (
                 <Link
                   to="/admin"

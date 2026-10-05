@@ -45,12 +45,14 @@ namespace ecommerce_api.Controllers
         }
 
         // PUT: api/users/5/role
+        // Roles can only be switched between buyer and vendor. The single admin
+        // account comes from the database seed and cannot be granted here.
         [HttpPut("{id:int}/role")]
         public async Task<IActionResult> ChangeRole(int id, ChangeRoleDto request)
         {
-            var allowed = new[] { "buyer", "vendor", "admin" };
+            var allowed = new[] { "buyer", "vendor" };
             if (!allowed.Contains(request.Role))
-                return BadRequest(new { message = "Role must be buyer, vendor or admin." });
+                return BadRequest(new { message = "Role must be 'buyer' or 'vendor'. The admin account is fixed and cannot be granted or revoked." });
 
             var user = await _context.Users.FindAsync(id);
             if (user == null)

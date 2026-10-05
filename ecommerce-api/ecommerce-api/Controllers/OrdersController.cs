@@ -54,6 +54,10 @@ namespace ecommerce_api.Controllers
             if (!cartItems.Any())
                 return BadRequest(new { message = "Cart is empty" });
 
+            var ownsCartItems = cartItems.Any(c => c.Product.VendorId == userId);
+            if (ownsCartItems && !User.IsInRole("admin"))
+                return BadRequest(new { message = "You cannot buy your own product" });
+
             var order = new Order
             {
                 UserId = userId,
@@ -111,5 +115,55 @@ namespace ecommerce_api.Controllers
 
             return Ok(ToDto(order));
         }
+
+        // GET: api/orders/all  (admin sees every user's orders)
+        [Authorize(Roles = "admin")]
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<AdminOrderDto>>> GetAllOrders()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            return Ok(orders.Select(ToAdminDto));
+        }
+
+        // PUT: api/orders/5/status  (admin updates fulfilment status)
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id:int}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDto request)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+                return NotFound();
+
+            order.Status = request.Status;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { id = order.Id, status = order.Status });
+        }
+
+        private static AdminOrderDto ToAdminDto(Order order) => new()
+        {
+            Id = order.Id,
+            UserId = order.UserId,
+            CustomerName = order.User?.FullName ?? "",
+            CustomerEmail = order.User?.Email ?? "",
+            Status = order.Status,
+            TotalAmount = order.TotalAmount,
+            ShippingAddress = order.ShippingAddress,
+            CreatedAt = order.CreatedAt,
+            Items = order.OrderItems.Select(oi => new OrderItemDto
+            {
+                ProductId = oi.ProductId,
+                Title = oi.Product.Title,
+                Image = oi.Product.ImageUrl ?? "",
+                Quantity = oi.Quantity,
+                Price = oi.Price
+            }).ToList()
+        };
     }
 }

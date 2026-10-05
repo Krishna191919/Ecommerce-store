@@ -18,9 +18,6 @@ namespace ecommerce_api.DTOs
 
         [MaxLength(20)]
         public string? PhoneNumber { get; set; }
-
-        [RegularExpression("^(buyer|vendor)$", ErrorMessage = "Role must be 'buyer' or 'vendor'.")]
-        public string Role { get; set; } = "buyer";
     }
 
     public class LoginRequestDto

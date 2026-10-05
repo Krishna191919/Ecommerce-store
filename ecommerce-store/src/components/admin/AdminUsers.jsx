@@ -3,7 +3,9 @@ import { apiFetch, getUser } from "../../utils/auth";
 import { extractError } from "./errors";
 import { ToastContext } from "../../context/ToastContext";
 
-const ROLES = ["buyer", "vendor", "admin"];
+// Roles can only be switched between buyer and vendor — the single admin
+// account comes from the database seed and is never granted here.
+const ROLES = ["buyer", "vendor"];
 
 const AdminUsers = ({ users, refresh }) => {
   const [search, setSearch] = useState("");

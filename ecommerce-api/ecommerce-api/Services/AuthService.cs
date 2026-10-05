@@ -25,14 +25,14 @@ namespace ecommerce_api.Services
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
                 throw new Exception("Email already registered");
 
-            var role = request.Role == "vendor" ? "vendor" : "buyer";
-
+            // New accounts always start as buyers. Becoming a vendor requires
+            // applying via /api/vendor-applications and admin approval.
             var user = new User
             {
                 FullName = request.FullName,
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = role,
+                Role = "buyer",
                 PhoneNumber = request.PhoneNumber,
                 CreatedAt = DateTime.UtcNow
             };

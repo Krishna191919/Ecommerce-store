@@ -54,6 +54,7 @@ const Hero = () => {
                     description={product.description}
                     category={product.category}
                     price={product.price}
+                    vendorId={product.vendorId}
                   />
                 </Link>
               ))
