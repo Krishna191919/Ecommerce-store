@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ecommerce_api.Data;
+using ecommerce_api.Exceptions;
 using ecommerce_api.DTOs;
 using ecommerce_api.Models;
 
@@ -23,7 +24,7 @@ namespace ecommerce_api.Services
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
-                throw new Exception("Email already registered");
+                throw new AppException("Email already registered");
 
             // New accounts always start as buyers. Becoming a vendor requires
             // applying via /api/vendor-applications and admin approval.
@@ -47,7 +48,7 @@ namespace ecommerce_api.Services
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-                throw new Exception("Invalid email or password");
+                throw new AppException("Invalid email or password", 401);
 
             return GenerateToken(user);
         }

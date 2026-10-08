@@ -1,8 +1,11 @@
-{
+﻿{
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning"
     }
+  },
+  "Jwt": {
+    "Secret": "REPLACE_WITH_A_RANDOM_32_PLUS_CHARACTERS_SECRET"
   }
 }

@@ -1,13 +1,16 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ecommerce_api.DTOs;
+using ecommerce_api.Exceptions;
 using ecommerce_api.Services;
 
 namespace ecommerce_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimiting("auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -26,7 +29,7 @@ namespace ecommerce_api.Controllers
                 var result = await _authService.RegisterAsync(request);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (AppException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -41,7 +44,7 @@ namespace ecommerce_api.Controllers
                 var result = await _authService.LoginAsync(request);
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (AppException ex)
             {
                 return Unauthorized(new { message = ex.Message });
             }

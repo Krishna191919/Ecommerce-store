@@ -35,7 +35,7 @@ const Signin = () => {
         body: JSON.stringify(body),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         showToast(data.message || "Something went wrong", "error");

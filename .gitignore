@@ -12,3 +12,7 @@ obj/
 ecommerce.db
 ecommerce.db-shm
 ecommerce.db-wal
+
+# Local secrets — never commit
+appsettings.Development.json
+.newsecret
