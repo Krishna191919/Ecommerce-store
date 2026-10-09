@@ -29,6 +29,8 @@ namespace ecommerce_api.Models
         public double Rating { get; set; }
         public int RatingCount { get; set; }
 
+        public int Stock { get; set; } = 10;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }

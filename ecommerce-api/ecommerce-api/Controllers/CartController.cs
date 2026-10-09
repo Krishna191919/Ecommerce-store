@@ -58,8 +58,14 @@ namespace ecommerce_api.Controllers
             if (product.VendorId == userId && !User.IsInRole("admin"))
                 return BadRequest(new { message = "You cannot buy your own product" });
 
+            if (product.Stock < 1)
+                return BadRequest(new { message = $"\"{product.Title}\" is out of stock" });
+
             if (request.Quantity < 1)
                 return BadRequest(new { message = "Quantity must be at least 1" });
+
+            if (request.Quantity > product.Stock)
+                return BadRequest(new { message = $"Only {product.Stock} left of \"{product.Title}\"" });
 
             var existing = await _context.CartItems
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == request.ProductId);

@@ -82,6 +82,7 @@ const AdminProducts = ({ products, categories, refresh, refreshCategories }) => 
                 <th className="px-4 py-3">Price</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Rating</th>
+                <th className="px-4 py-3">Stock</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -109,6 +110,23 @@ const AdminProducts = ({ products, categories, refresh, refreshCategories }) => 
                   <td className="px-4 py-3 text-gray-600">{p.category}</td>
                   <td className="px-4 py-3 text-gray-600">
                     {p.rating?.rate} ({p.rating?.count})
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.stock > 0 ? (
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          p.stock <= 3
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {p.stock} left
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-700">
+                        Out of stock
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button

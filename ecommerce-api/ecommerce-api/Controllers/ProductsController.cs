@@ -88,6 +88,7 @@ namespace ecommerce_api.Controllers
                 VendorId = GetUserId(),
                 Rating = request.Rating,
                 RatingCount = request.RatingCount,
+                Stock = request.Stock,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -121,6 +122,7 @@ namespace ecommerce_api.Controllers
             product.CategoryId = request.CategoryId;
             product.Rating = request.Rating;
             product.RatingCount = request.RatingCount;
+            product.Stock = request.Stock;
             product.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -159,6 +161,7 @@ namespace ecommerce_api.Controllers
             VendorId = p.VendorId,
             VendorName = p.Vendor?.FullName ?? "",
             Image = p.ImageUrl ?? "",
+            Stock = p.Stock,
             Rating = new RatingDto
             {
                 Rate = p.Rating,

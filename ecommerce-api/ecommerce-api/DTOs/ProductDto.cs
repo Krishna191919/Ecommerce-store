@@ -11,6 +11,8 @@
         public int VendorId { get; set; }
         public string VendorName { get; set; } = string.Empty;
         public string Image { get; set; } = string.Empty;
+        public int Stock { get; set; }
+        public bool InStock => Stock > 0;
         public RatingDto Rating { get; set; } = null!;
     }
 

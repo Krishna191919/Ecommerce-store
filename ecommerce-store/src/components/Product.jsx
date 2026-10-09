@@ -47,6 +47,7 @@ const Product = () => {
   const isOwnProduct =
     product?.vendorId != null && user?.userId != null &&
     String(product.vendorId) === String(user.userId);
+  const outOfStock = product != null && product.stock <= 0;
 
   if (isLoading) {
     return (
@@ -100,15 +101,35 @@ const Product = () => {
           <p className="text-gray-600 text-base line-clamp-4 min-h-[4em]">
             {product.description}
           </p>
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
             <span className="flex items-center gap-1 text-yellow-500 font-semibold">
               <FaStar className="inline" /> {product.rating?.rate}
             </span>
             <span className="text-gray-500 text-sm">
               ({product.rating?.count} reviews)
             </span>
+            <span
+              className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                product.stock > 3
+                  ? "bg-green-100 text-green-700"
+                  : product.stock > 0
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-red-100 text-red-700"
+              }`}
+            >
+              {product.stock > 0
+                ? `In stock: ${product.stock}`
+                : "Out of stock"}
+            </span>
           </div>
-          {isOwnProduct ? (
+          {outOfStock ? (
+            <button
+              disabled
+              className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-gray-100 text-red-500 border border-red-200 rounded-lg font-medium text-base cursor-not-allowed"
+            >
+              Out of stock
+            </button>
+          ) : isOwnProduct ? (
             <button
               disabled
               className="mt-4 flex items-center justify-center gap-2 px-5 py-2 bg-gray-200 text-gray-600 rounded-lg font-medium text-base cursor-not-allowed"

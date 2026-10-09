@@ -12,6 +12,7 @@ const ProductCard = ({
   description,
   category,
   vendorId,
+  stock,
 }) => {
   const { addToCart } = useContext(CartContext);
   const { showToast } = useContext(ToastContext);
@@ -19,6 +20,7 @@ const ProductCard = ({
   const isOwnProduct =
     vendorId !== undefined && user?.userId != null &&
     String(vendorId) === String(user.userId);
+  const outOfStock = stock != null && stock <= 0;
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -62,7 +64,14 @@ const ProductCard = ({
       <p className="text-gray-600 text-sm line-clamp-2 min-h-[2.5em]">
         {description}
       </p>
-      {isOwnProduct ? (
+      {outOfStock ? (
+        <button
+          disabled
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-500 font-semibold rounded-lg cursor-not-allowed border border-red-200"
+        >
+          Out of stock
+        </button>
+      ) : isOwnProduct ? (
         <button
           disabled
           className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-600 font-semibold rounded-lg cursor-not-allowed"

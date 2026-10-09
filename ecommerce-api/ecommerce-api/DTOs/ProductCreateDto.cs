@@ -23,5 +23,8 @@ namespace ecommerce_api.DTOs
 
         public double Rating { get; set; }
         public int RatingCount { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int Stock { get; set; } = 10;
     }
 }

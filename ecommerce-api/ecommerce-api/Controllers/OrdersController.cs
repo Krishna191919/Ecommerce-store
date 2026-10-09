@@ -58,6 +58,40 @@ namespace ecommerce_api.Controllers
             if (ownsCartItems && !User.IsInRole("admin"))
                 return BadRequest(new { message = "You cannot buy your own product" });
 
+            // Reserve stock atomically. The conditional UPDATE only succeeds
+            // when enough stock remains, so concurrent checkouts cannot sell
+            // the same unit twice (no read-modify-write race).
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var reservations = cartItems
+                .GroupBy(c => c.ProductId)
+                .Select(g => new { g.Key, Quantity = g.Sum(c => c.Quantity) })
+                .ToList();
+
+            foreach (var reservation in reservations)
+            {
+                var product = cartItems.First(c => c.ProductId == reservation.Key).Product;
+                var affected = await _context.Products
+                    .Where(p => p.Id == reservation.Key && p.Stock >= reservation.Quantity)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(p => p.Stock, p => p.Stock - reservation.Quantity));
+
+                if (affected == 0)
+                {
+                    await transaction.RollbackAsync();
+                    var available = await _context.Products
+                        .Where(p => p.Id == reservation.Key)
+                        .Select(p => p.Stock)
+                        .FirstOrDefaultAsync();
+                    return BadRequest(new
+                    {
+                        message = available < 1
+                            ? $"\"{product.Title}\" is out of stock"
+                            : $"Only {available} left of \"{product.Title}\""
+                    });
+                }
+            }
+
             var order = new Order
             {
                 UserId = userId,
@@ -78,6 +112,7 @@ namespace ecommerce_api.Controllers
             _context.CartItems.RemoveRange(cartItems);
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             var result = await _context.Orders
                 .Include(o => o.OrderItems)
@@ -136,9 +171,40 @@ namespace ecommerce_api.Controllers
         [HttpPut("{id:int}/status")]
         public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDto request)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id);
             if (order == null)
                 return NotFound();
+
+            var previousStatus = order.Status;
+
+            if (request.Status == "cancelled" && previousStatus != "cancelled")
+            {
+                // Returning items to inventory; the conditional UPDATE keeps
+                // stock from going negative if a product was edited meanwhile.
+                foreach (var item in order.OrderItems)
+                {
+                    await _context.Products
+                        .Where(p => p.Id == item.ProductId)
+                        .ExecuteUpdateAsync(s => s
+                            .SetProperty(p => p.Stock, p => p.Stock + item.Quantity));
+                }
+            }
+            else if (previousStatus == "cancelled" && request.Status != "cancelled")
+            {
+                // Re-opening a cancelled order re-takes the stock; refuse if
+                // units were sold out in the meantime.
+                foreach (var item in order.OrderItems)
+                {
+                    var affected = await _context.Products
+                        .Where(p => p.Id == item.ProductId && p.Stock >= item.Quantity)
+                        .ExecuteUpdateAsync(s => s
+                            .SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
+                    if (affected == 0)
+                        return BadRequest(new { message = "Cannot re-open: insufficient stock for one or more items." });
+                }
+            }
 
             order.Status = request.Status;
             await _context.SaveChangesAsync();

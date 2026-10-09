@@ -11,6 +11,7 @@ const empty = {
   imageUrl: "",
   rating: "0",
   ratingCount: "0",
+  stock: "10",
 };
 
 const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
@@ -30,6 +31,7 @@ const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
         imageUrl: product.image ?? "",
         rating: product.rating?.rate ?? "0",
         ratingCount: product.rating?.count ?? "0",
+        stock: product.stock ?? "10",
       });
     } else {
       setForm(empty);
@@ -53,6 +55,7 @@ const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
       imageUrl: form.imageUrl,
       rating: Number(form.rating),
       ratingCount: Number(form.ratingCount),
+      stock: Number(form.stock),
     });
 
     try {
@@ -198,7 +201,7 @@ const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-sm font-semibold text-gray-700">
                 Rating
@@ -225,6 +228,21 @@ const AdminProductForm = ({ product, categories, onClose, onSaved }) => {
                 onChange={handleInput}
                 min="0"
                 step="1"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-700">
+                Stock
+              </label>
+              <input
+                type="number"
+                name="stock"
+                value={form.stock}
+                onChange={handleInput}
+                min="0"
+                step="1"
+                required
                 className={inputClass}
               />
             </div>

@@ -56,6 +56,7 @@ namespace ecommerce_api.Controllers
                     VendorId = p.VendorId,
                     VendorName = p.Vendor.FullName,
                     Image = p.ImageUrl ?? "",
+                    Stock = p.Stock,
                     Rating = new RatingDto
                     {
                         Rate = p.Rating,
