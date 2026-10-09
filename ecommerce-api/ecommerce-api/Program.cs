@@ -82,7 +82,11 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Per-IP budgets: a broad ceiling everywhere, a tight one on credential
-// endpoints so password guessing is throttled.
+// endpoints so password guessing is throttled. Limits are configurable so
+// test environments can lift them.
+var authPermit = builder.Configuration.GetValue<int>("RateLimit:AuthPermit", 10);
+var globalPermit = builder.Configuration.GetValue<int>("RateLimit:GlobalPermit", 100);
+
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -99,7 +103,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 100,
+                PermitLimit = globalPermit,
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0
             }));
@@ -109,7 +113,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10,
+                PermitLimit = authPermit,
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0
             }));
@@ -160,3 +164,6 @@ if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 }
 
 app.Run();
+
+// Exposes the entry point to WebApplicationFactory-based integration tests.
+public partial class Program { }
