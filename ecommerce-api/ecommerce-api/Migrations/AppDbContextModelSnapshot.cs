@@ -100,6 +100,13 @@ namespace ecommerce_api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ShippingAddress")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
@@ -205,7 +212,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9191),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8479),
                             Description = "Your perfect pack for everyday use and walks in the forest. Sturdy 12oz fabric, double-sided cover and stitched flap and detail.",
                             ImageUrl = "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png",
                             Price = 109.95m,
@@ -219,7 +226,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 2,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9194),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8482),
                             Description = "Slim-fitting style, contrast raglan sleeve set-in sleeve for freedom of movement and casual comfort.",
                             ImageUrl = "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_t.png",
                             Price = 22.3m,
@@ -233,7 +240,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 3,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9197),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8488),
                             Description = "Great outerwear jackets for spring/autumn/winter, suitable for many occasions.",
                             ImageUrl = "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_t.png",
                             Price = 55.99m,
@@ -247,7 +254,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 4,
                             CategoryId = 2,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9199),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8490),
                             Description = "Inspired by the mythical water dragon that protects the ocean's pearl.",
                             ImageUrl = "https://fakestoreapi.com/img/71pWzhdJNwL._AC_UL640_QL65_ML3_t.png",
                             Price = 695.0m,
@@ -261,7 +268,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 5,
                             CategoryId = 3,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9201),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8493),
                             Description = "USB 3.0 and USB 2.0 compatible, fast data transfers, improve PC performance.",
                             ImageUrl = "https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_t.png",
                             Price = 64.0m,
@@ -275,7 +282,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 6,
                             CategoryId = 3,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9204),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8495),
                             Description = "Expand your PS4 gaming experience, play games fast with this compact and soft external hard drive.",
                             ImageUrl = "https://fakestoreapi.com/img/61mtL65D4cL._AC_SX679_t.png",
                             Price = 114.0m,
@@ -289,7 +296,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 7,
                             CategoryId = 3,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9206),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8497),
                             Description = "21.5 inches Full HD (1920 x 1080) IPS ultra-thin monitor, 4ms response time, widescreen IPS.",
                             ImageUrl = "https://fakestoreapi.com/img/81QpkIctqPL._AC_SX679_t.png",
                             Price = 599.0m,
@@ -303,7 +310,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 8,
                             CategoryId = 3,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9208),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8500),
                             Description = "Super ultrawide view, 32:9 aspect ratio, 1800R curve for immersive experience.",
                             ImageUrl = "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_t.png",
                             Price = 999.99m,
@@ -317,7 +324,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 9,
                             CategoryId = 4,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9210),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8502),
                             Description = "Detachable liner waterproof winter coat, casual warm outwear with hood.",
                             ImageUrl = "https://fakestoreapi.com/img/51Y5NI-I5jL._AC_UX679_t.png",
                             Price = 56.99m,
@@ -331,7 +338,7 @@ namespace ecommerce_api.Migrations
                         {
                             Id = 10,
                             CategoryId = 4,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9213),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8504),
                             Description = "100% polyurethane, 100% polyester lining, zippered detail, lightweight and comfortable.",
                             ImageUrl = "https://fakestoreapi.com/img/81XH0e8fefL._AC_UY879_t.png",
                             Price = 29.95m,
@@ -386,7 +393,7 @@ namespace ecommerce_api.Migrations
                         new
                         {
                             Id = 999,
-                            CreatedAt = new DateTime(2026, 10, 9, 7, 2, 18, 126, DateTimeKind.Utc).AddTicks(9248),
+                            CreatedAt = new DateTime(2026, 10, 20, 16, 10, 26, 202, DateTimeKind.Utc).AddTicks(8594),
                             Email = "admin@store.com",
                             FullName = "Admin",
                             PasswordHash = "$2a$11$LyEKv.tCDMiUNvHt/jd0me0etoZrZ2uPDKJJ40gTBfZAVj9rbCeUa",

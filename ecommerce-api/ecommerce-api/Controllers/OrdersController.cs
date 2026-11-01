@@ -2,9 +2,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using ecommerce_api.Data;
 using ecommerce_api.DTOs;
 using ecommerce_api.Models;
+using ecommerce_api.Services;
 
 namespace ecommerce_api.Controllers
 {
@@ -14,10 +16,14 @@ namespace ecommerce_api.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IPaymentService _paymentService;
+        private readonly IConfiguration _configuration;
 
-        public OrdersController(AppDbContext context)
+        public OrdersController(AppDbContext context, IPaymentService paymentService, IConfiguration configuration)
         {
             _context = context;
+            _paymentService = paymentService;
+            _configuration = configuration;
         }
 
         private int GetUserId() =>
@@ -41,8 +47,11 @@ namespace ecommerce_api.Controllers
         };
 
         // POST: api/orders/checkout
+        // Creates the order and (when Stripe is configured) a PaymentIntent.
+        // The amount is always taken from the server-side cart total, never
+        // from the client — the PaymentElement confirms against that intent.
         [HttpPost("checkout")]
-        public async Task<ActionResult<OrderDto>> Checkout(CheckoutDto request)
+        public async Task<ActionResult<CheckoutResultDto>> Checkout(CheckoutDto request)
         {
             var userId = GetUserId();
 
@@ -119,7 +128,40 @@ namespace ecommerce_api.Controllers
                 .ThenInclude(oi => oi.Product)
                 .FirstAsync(o => o.Id == order.Id);
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, ToDto(result));
+            var dto = new CheckoutResultDto
+            {
+                Id = result.Id,
+                Status = result.Status,
+                TotalAmount = result.TotalAmount,
+                ShippingAddress = result.ShippingAddress,
+                CreatedAt = result.CreatedAt,
+                Currency = (_configuration["Stripe:Currency"] ?? "usd").ToUpper(),
+                Items = result.OrderItems.Select(oi => new OrderItemDto
+                {
+                    ProductId = oi.ProductId,
+                    Title = oi.Product.Title,
+                    Image = oi.Product.ImageUrl ?? "",
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList()
+            };
+
+            // A Stripe failure must not lose the order — the customer can pay
+            // later from My Orders (order-intent endpoint retries).
+            if (!string.IsNullOrWhiteSpace(StripeConfiguration.ApiKey))
+            {
+                try
+                {
+                    var intent = await _paymentService.EnsureIntentAsync(order);
+                    dto.ClientSecret = intent.ClientSecret;
+                }
+                catch (StripeException ex)
+                {
+                    Console.Error.WriteLine($"Stripe intent creation failed for order {order.Id}: {ex.Message}");
+                }
+            }
+
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, dto);
         }
 
         // GET: api/orders

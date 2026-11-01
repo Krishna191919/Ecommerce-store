@@ -41,6 +41,66 @@ namespace ecommerce_api.Controllers
             return Ok(products.Select(ToDto));
         }
 
+        // GET: api/products/search?search=&categoryId=&minRating=&sortBy=&sortDir=&page=&pageSize=
+        [HttpGet("search")]
+        public async Task<ActionResult<PagedProductsDto>> SearchProducts(
+            [FromQuery] string? search,
+            [FromQuery] int? categoryId,
+            [FromQuery] double? minRating,
+            [FromQuery] string? sortBy = "newest",
+            [FromQuery] string? sortDir = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 12)
+        {
+            var query = WithDetails().AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim().ToLower();
+                query = query.Where(p =>
+                    p.Title.ToLower().Contains(term) ||
+                    (p.Description != null && p.Description.ToLower().Contains(term)));
+            }
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            if (minRating.HasValue)
+                query = query.Where(p => p.Rating >= minRating.Value);
+
+            page = Math.Max(1, page);
+            pageSize = Math.Clamp(pageSize, 1, 50);
+
+            var total = await query.CountAsync();
+
+            // Id as tiebreaker keeps equal sort values stable across pages.
+            query = (sortBy ?? "newest").ToLowerInvariant() switch
+            {
+                "price" => (sortDir == "asc"
+                    ? query.OrderBy(p => p.Price)
+                    : query.OrderByDescending(p => p.Price)).ThenBy(p => p.Id),
+                "rating" => (sortDir == "asc"
+                    ? query.OrderBy(p => p.Rating)
+                    : query.OrderByDescending(p => p.Rating)).ThenBy(p => p.Id),
+                "title" => (sortDir == "asc"
+                    ? query.OrderBy(p => p.Title)
+                    : query.OrderByDescending(p => p.Title)).ThenBy(p => p.Id),
+                _ => query.OrderByDescending(p => p.CreatedAt).ThenBy(p => p.Id)
+            };
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new PagedProductsDto
+            {
+                Items = items.Select(ToDto).ToList(),
+                Total = total,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(total / (double)pageSize)
+            });
+        }
+
         // GET: api/products/mine
         [Authorize(Roles = "admin,vendor")]
         [HttpGet("mine")]

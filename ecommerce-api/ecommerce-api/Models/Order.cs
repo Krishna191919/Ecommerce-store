@@ -20,6 +20,11 @@ namespace ecommerce_api.Models
         [MaxLength(500)]
         public string? ShippingAddress { get; set; }
 
+        [MaxLength(200)]
+        public string? PaymentIntentId { get; set; }
+
+        public DateTime? PaidAt { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

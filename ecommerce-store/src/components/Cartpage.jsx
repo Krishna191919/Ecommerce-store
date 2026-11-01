@@ -1,41 +1,98 @@
-import { useContext, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { CartContext } from "../context/CartContext";
 import { ToastContext } from "../context/ToastContext";
 import { FaTrash, FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { isLoggedIn } from "../utils/auth";
-import { apiFetch } from "../utils/auth";
+import { isLoggedIn, apiFetch } from "../utils/auth";
+import { injectStripe, useElements, useStripe } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+// Load Stripe automatically when module initializes, using the publishable key
+// from the React app env. If the key is empty/invalid, stripe will be falsy.
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "", {
+  // Ensure Stripe can place holders for our hosted elements.
+  cardholderBillingAddressOptions: {
+    enabled: true
+  }
+});
 
 const Cartpage = () => {
   const { cart, removeFromCart, updateQuantity, clearCart, getTotal } =
     useContext(CartContext);
   const { showToast } = useContext(ToastContext);
   const navigate = useNavigate();
+  const elements = useElements();
+  const stripe = useStripe();
   const [showCheckout, setShowCheckout] = useState(false);
   const [address, setAddress] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+
+  // Create or retrieve a PaymentIntent for this order on the server
+  const createPaymentIntent = async (orderId) => {
+    const res = await apiFetch("/api/payments/order-intent/${orderId}", {
+      method: "POST",
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      setPaymentError(err.message || "Failed to create payment intent");
+      return null;
+    }
+    return (await res.json()).clientSecret;
+  };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!stripe || !elements) {
+      setPaymentError("Stripe not initialized — check your VITE_STRIPE_PUBLISHABLE_KEY");
+      return;
+    }
+    setIsLoadingPayment(true);
+    setPaymentError(null);
     try {
-      const res = await apiFetch("/api/orders/checkout", {
-        method: "POST",
-        body: JSON.stringify({ shippingAddress: address }),
+      // Get the latest order or fetch one from MyOrders
+      const res = await apiFetch("/api/orders");
+      if (!res.ok) throw new Error("Could not fetch orders");
+      const orders = await res.json();
+      const order = orders[0];
+      if (!order) throw new Error("No orders found");
+
+      // Create/retrieve PaymentIntent clientSecret
+      const clientSecret = await createPaymentIntent(order.id);
+      if (!clientSecret) throw new Error("No client secret");
+
+      // Confirm the payment using Stripe Elements
+      const result = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          // Submit billing address same as checkout form
+          billing_details: {
+            name: getUser()?.fullName || "",
+            email: getUser()?.email || "",
+            phone: getUser()?.phoneNumber || "",
+            address: {
+              line1: address,
+              city: "",
+              state: "",
+              postal_code: "",
+              country: ""
+            }
+          },
+          return_url: window.location.origin + "/"
+        },
+        // Wait for the customer to complete authentication (3DS) before failing
+        redirect: "if_needed"
       });
-      if (res.ok) {
-        const order = await res.json();
-        clearCart();
-        showToast(`Order #${order.id} placed successfully!`, "success");
-        navigate("/");
-      } else {
-        const data = await res.json();
-        showToast(data.message || "Checkout failed", "error");
+
+      // If the user aborts or 3DS is needed, result will be pending
+      if (result.error) {
+        setPaymentError(result.error.message);
       }
-    } catch {
-      showToast("Failed to connect to server", "error");
+    } catch (err) {
+      console.error(err);
+      setPaymentError(err.message || "Payment failed");
     } finally {
-      setIsSubmitting(false);
+      setIsLoadingPayment(false);
     }
   };
 
@@ -66,8 +123,16 @@ const Cartpage = () => {
     );
   }
 
+  // If we have a pending payment error, show it above the cart
+  const paymentErrorBanner = paymentError ? (
+    <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg" role="alert">
+      <span className="font-bold">Payment error:</span> {paymentError}
+    </div>
+  ) : null;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      {paymentErrorBanner}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-gray-800">
           Shopping Cart ({cart.length} {cart.length === 1 ? "item" : "items"})
@@ -148,36 +213,19 @@ const Cartpage = () => {
           </span>
         </div>
 
-        {showCheckout ? (
-          <form onSubmit={handleCheckout} className="flex flex-col gap-4">
-            <label className="text-sm font-semibold text-gray-700">
-              Shipping Address
-            </label>
-            <textarea
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              required
-              rows={3}
-              placeholder="Enter your full shipping address..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-            />
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowCheckout(false)}
-                className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
-              >
-                {isSubmitting ? "Placing Order..." : "Place Order"}
-              </button>
-            </div>
-          </form>
+        {stripe && elements ? (
+          <div>
+            {paymentError && <div className="mb-3 p-3 bg-red-100 text-red-800 rounded-lg" role="alert">{paymentError}</div>}
+            <button
+              onClick={handleCheckout}
+              disabled={isLoadingPayment}
+              className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+            >
+              {isLoadingPayment ? "Processing Payment..." : "Pay Now"}
+            </button>
+            {/* Stripe PaymentElement renders inside this container */}
+            <div className="p-4 bg-gray-50 rounded-lg" style={{ minHeight: "150px" }} />
+          </div>
         ) : (
           <button
             onClick={handleCheckoutClick}

@@ -32,8 +32,17 @@ namespace ecommerce_api.DTOs
     public class UpdateOrderStatusDto
     {
         [Required]
-        [RegularExpression("^(pending|shipped|delivered|cancelled)$", ErrorMessage = "Status must be pending, shipped, delivered or cancelled.")]
+        // "paid" is set by the Stripe webhook; admin can also set it manually
+        // in case of manual/offline payment confirmation.
+        [RegularExpression("^(pending|paid|shipped|delivered|cancelled)$", ErrorMessage = "Status must be pending, paid, shipped, delivered or cancelled.")]
         public string Status { get; set; } = string.Empty;
+    }
+
+    // Checkout response = order + payment info for the Stripe PaymentElement
+    public class CheckoutResultDto : OrderDto
+    {
+        public string? ClientSecret { get; set; }
+        public string Currency { get; set; } = string.Empty;
     }
 
     // Full order detail for the admin, including customer info

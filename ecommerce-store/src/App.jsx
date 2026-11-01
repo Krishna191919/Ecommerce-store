@@ -41,33 +41,76 @@ function App() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  // search/category/sort filters live here so Navbar (search) and
+  // Hero (category/sort/pagination) can both drive the same query.
+  const [filters, setFilters] = useState({
+    search: "",
+    categoryId: "",
+    sortBy: "newest",
+    sortDir: null,
+    minRating: null,
+  });
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { showToast } = useContext(ToastContext);
   const isInitialLoad = useRef(true);
 
-  const fetchAllProducts = async () => {
-    if (isInitialLoad.current) setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/products`);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.json();
-      setProducts(data);
-    } catch (err) {
-      console.error("Failed to fetch products:", err);
-      setError("Failed to load products. Please try again later.");
-    } finally {
-      if (isInitialLoad.current) {
-        isInitialLoad.current = false;
-        setIsLoading(false);
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      if (isInitialLoad.current) setIsLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams({ page, pageSize: 12 });
+        if (filters.search) params.set("search", filters.search);
+        if (filters.categoryId) params.set("categoryId", filters.categoryId);
+        if (filters.minRating) params.set("minRating", filters.minRating);
+        if (filters.sortBy) params.set("sortBy", filters.sortBy);
+        if (filters.sortDir) params.set("sortDir", filters.sortDir);
+
+        const res = await fetch(`${API_BASE_URL}/api/products/search?${params}`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        if (!active) return;
+        setProducts(data.items);
+        setTotalPages(data.totalPages || 1);
+        setTotal(data.total);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        if (active) setError("Failed to load products. Please try again later.");
+      } finally {
+        if (active && isInitialLoad.current) {
+          isInitialLoad.current = false;
+          setIsLoading(false);
+        }
+        if (active) setIsLoading(false);
       }
-    }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [filters, page]);
+
+  // Changing any filter resets to page 1 unless an explicit page is given.
+  const updateFilters = (patch, targetPage) => {
+    setFilters((prev) => ({ ...prev, ...patch }));
+    setPage(targetPage ?? 1);
   };
 
-  useEffect(() => {
-    fetchAllProducts();
-  }, [pathname]);
+  const resetFilters = () => {
+    setFilters({
+      search: "",
+      categoryId: "",
+      sortBy: "newest",
+      sortDir: null,
+      minRating: null,
+    });
+    setPage(1);
+  };
 
   useEffect(() => {
     let active = true;
@@ -89,33 +132,27 @@ function App() {
     };
   }, [navigate, showToast]);
 
-  const searchProducts = async (query) => {
-    if (!query) {
-      fetchAllProducts();
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/products`);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.json();
-      const filtered = data.filter((item) =>
-        item.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setProducts(filtered);
-    } catch (err) {
-      console.error("Failed to search products:", err);
-      setError("Failed to search products. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    // Navigating home (Home link) clears the catalog filters.
+    if (pathname === "/") resetFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <>
-      <Navbar onSearch={searchProducts} onReset={fetchAllProducts} />
-      <Outlet context={{ products, isLoading, error }} />
+      <Navbar onSearch={(q) => updateFilters({ search: q })} onReset={resetFilters} />
+      <Outlet
+        context={{
+          products,
+          isLoading,
+          error,
+          page,
+          totalPages,
+          total,
+          filters,
+          updateFilters,
+        }}
+      />
       <Footer />
     </>
   );
