@@ -25,6 +25,11 @@ namespace ecommerce_api.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Refresh token fields for rotation-based revocation
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
+        public int RefreshTokenCounter { get; set; } = 0;
+
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         public ICollection<Product> Products { get; set; } = new List<Product>();

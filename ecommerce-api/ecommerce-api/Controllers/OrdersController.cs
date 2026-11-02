@@ -178,6 +178,23 @@ namespace ecommerce_api.Controllers
             return Ok(orders.Select(ToDto));
         }
 
+        // GET: api/orders/vendor  (vendors see orders containing their products)
+        [HttpGet("vendor")]
+        [Authorize(Roles = "vendor")]
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetVendorOrders()
+        {
+            var vendorId = GetUserId();
+
+            var orders = await _context.Orders
+                .Where(o => o.OrderItems.Any(oi => oi.Product.VendorId == vendorId))
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            return Ok(orders.Select(ToDto));
+        }
+
         // GET: api/orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrder(int id)

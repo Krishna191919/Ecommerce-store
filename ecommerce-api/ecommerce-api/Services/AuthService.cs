@@ -75,13 +75,26 @@ namespace ecommerce_api.Services
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
             );
 
+            // Generate refresh token with rotation for revocation
+            var rnd = new Random();
+            var refreshTokenBytes = new byte[32];
+            rnd.NextBytes(refreshTokenBytes);
+            var refreshToken = Convert.ToBase64String(refreshTokenBytes);
+            var rndCounter = user.RefreshTokenCounter + 1;
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30); // refresh tokens last 30 days
+            user.RefreshTokenCounter = rndCounter;
+            _context.SaveChanges(); // save refresh token to DB
+
             return new AuthResponseDto
             {
                 UserId = user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
                 Role = user.Role,
-                Token = new JwtSecurityTokenHandler().WriteToken(token)
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken
             };
         }
     }

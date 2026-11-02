@@ -21,7 +21,7 @@ const MyOrders = () => {
     let active = true;
     (async () => {
       try {
-        const res = await apiFetch("/api/orders");
+        let endpoint = "/api/orders"; if (user?.role === "vendor") endpoint = "/api/orders/vendor"; const res = await apiFetch(endpoint);
         if (!active) return;
         if (res.ok) {
           setOrders(await res.json());
@@ -51,7 +51,7 @@ const MyOrders = () => {
     <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{user?.role === "vendor" ? "My Sales" : "My Orders"}</h1>
           <p className="text-sm text-gray-500">{user?.email}</p>
         </div>
         <Link
@@ -70,12 +70,12 @@ const MyOrders = () => {
 
       {orders.length === 0 && !error ? (
         <div className="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center">
-          <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
+          <p className="text-gray-500 mb-4">{user?.role === "vendor" ? "No sales yet." : "You haven't placed any orders yet."}</p>
           <Link
             to="/"
             className="px-5 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 inline-block"
           >
-            Browse Products
+            {user?.role === "vendor" ? "Add Products" : "Browse Products"}
           </Link>
         </div>
       ) : (
